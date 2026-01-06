@@ -1,0 +1,38 @@
+{
+	"authors": [
+		"quantumde1"
+	],
+	"copyright": "Copyright © 2025, quantumde1",
+	"description": "test",
+	"lflags-linux": [
+		"-rpath=/usr/lib",
+		"-rpath=$$ORIGIN",
+		"-build-id=none"
+	],
+	"lflags-osx": [
+		"-rpath",
+		"./",
+		"-rpath",
+		"/opt/local/lib",
+		"-build-id=none"
+	],
+	"lflags-posix": [
+		"-L/usr/lib",
+		"-L.",
+		"-L/opt/local/lib",
+		"-L/usr/local/lib",
+		"-build-id=none"
+	],
+	"lflags-windows": [
+		"-L./",
+		"/Brepro"
+	],
+	"libs-posix": [
+		"aperture"
+	],
+	"libs-windows": [
+		"aperture"
+	],
+	"license": "MIT License",
+	"name": "himmel_gl"
+}

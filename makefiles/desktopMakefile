@@ -1,0 +1,14 @@
+SRCS := $(shell find source -name '*.c*')
+OBJS := $(SRCS:.c=.o)
+
+CFLAGS := -fPIC -I$(PWD)/include -I/usr/local/include -g
+LDFLAGS := -shared -L/usr/local/lib
+
+%.o: %.c
+	clang $(CFLAGS) -c $< -o $@
+
+libaperture.so: $(OBJS)
+	clang $(LDFLAGS) $^ -o $@ -lGL -lGLU -lglfw -lm
+
+clean:
+	rm -f $(OBJS) libaperture.so

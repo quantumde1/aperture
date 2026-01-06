@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/aperture-d
+aperture-d.so
+aperture-d.dylib
+aperture-d.dll
+aperture-d.a
+aperture-d.lib
+aperture-d-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
