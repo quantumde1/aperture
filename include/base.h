@@ -29,6 +29,14 @@ extern float screenHeight;
 #define ASSETS_PATH "assets/"
 #endif
 
+typedef struct {
+    float x, y;
+} Vector2;
+
+typedef struct {
+    float x, y, width, height;
+} Rectangle;
+
 void glInit(int* pargc, char** argv, int width, int height, const char* title);
 void glSwapBuffers();
 
@@ -48,3 +56,7 @@ void SetWindowShouldClose(int shouldClose);
 int WindowShouldClose();
 
 void PollWindowEvents();
+
+int IsKeyPressed(int key);
+
+void UpdateInput();

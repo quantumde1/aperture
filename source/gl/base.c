@@ -141,4 +141,29 @@ void CloseWindow() {
     glfwDestroyWindow(window);
     glfwTerminate();
 }
+
+static int keyPreviousState[GLFW_KEY_LAST] = {0};
+static int keyCurrentState[GLFW_KEY_LAST] = {0};
+
+void UpdateInput() {
+    for (int i = 0; i < GLFW_KEY_LAST; i++) {
+        keyPreviousState[i] = keyCurrentState[i];
+        keyCurrentState[i] = glfwGetKey(window, i);
+    }
+}
+
+int IsKeyPressed(int key) {
+    if (key < 0 || key >= GLFW_KEY_LAST) return 0;
+    return (keyCurrentState[key] == GLFW_PRESS && keyPreviousState[key] == GLFW_RELEASE);
+}
+
+int IsKeyDown(int key) {
+    if (key < 0 || key >= GLFW_KEY_LAST) return 0;
+    return (keyCurrentState[key] == GLFW_PRESS);
+}
+
+int IsKeyReleased(int key) {
+    if (key < 0 || key >= GLFW_KEY_LAST) return 0;
+    return (keyCurrentState[key] == GLFW_RELEASE && keyPreviousState[key] == GLFW_PRESS);
+}
 #endif

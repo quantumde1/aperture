@@ -17,17 +17,8 @@
 
 Texture LoadTexture(const char* filename) {
     Texture texture = {0};
-    if (!filename) {
-        fprintf(stderr, "Error: NULL filename passed to LoadTexture\n");
-        return texture;
-    }
     stbi_set_flip_vertically_on_load(1);
     unsigned char* data = stbi_load(filename, &texture.width, &texture.height, &texture.channels, 0);
-
-    if (!data) {
-        fprintf(stderr, "Error: Could not load texture file %s\n", filename);
-        return texture;
-    }
     
     GLenum format;
     if (texture.channels == 4) {
@@ -36,7 +27,7 @@ Texture LoadTexture(const char* filename) {
         format = GL_RGB;
     } else {
         stbi_image_free(data);
-        fprintf(stderr, "гnsupported number of channels %d in texture\n", texture.channels);
+        fprintf(stderr, "unsupported number of channels %d in texture\n", texture.channels);
         return texture;
     }
     
@@ -82,11 +73,6 @@ Texture LoadTexture(const char* filename) {
 }
 
 void DrawTexture(Texture texture, float x, float y, float scale, Color tint) {
-    if (texture.id == 0 || texture.list_id == 0) {
-        printf("%s\n", "error: texture not loaded");
-        return;
-    }
-    
     glPushMatrix();
     glTranslatef(x, y, 0.0f);
     glScalef(texture.width * scale, texture.height * scale, 1.0f);
@@ -94,6 +80,55 @@ void DrawTexture(Texture texture, float x, float y, float scale, Color tint) {
     glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f);
     glCallList(texture.list_id);
     glColor4f(1.0, 1.0, 1.0, 1.0);
+    glPopMatrix();
+}
+
+// i do not recommend using this because of immediate mode.
+void DrawTexturePro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) {
+    float texWidth = (float)texture.width;
+    float texHeight = (float)texture.height;
+    float texLeft = source.x / texWidth;
+    float texRight = (source.x + source.width) / texWidth;
+    float texTop = source.y / texHeight;
+    float texBottom = (source.y + source.height) / texHeight;
+    texTop = 1.0f - texTop; // for inverting
+    texBottom = 1.0f - texBottom; // too
+    glPushMatrix();
+    glTranslatef(dest.x, dest.y, 0.0f);
+    if (rotation != 0.0f) {
+        glTranslatef(origin.x, origin.y, 0.0f);
+        glRotatef(rotation, 0.0f, 0.0f, 1.0f);
+        glTranslatef(-origin.x, -origin.y, 0.0f);
+    }
+    glScalef(dest.width, dest.height, 1.0f);
+    
+    glColor4f(tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f);
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    
+    if (texture.channels == 4) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    
+    glBegin(GL_QUADS);
+        glTexCoord2f(texLeft, texTop);
+        glVertex2f(0.0f, 0.0f);
+        glTexCoord2f(texRight, texTop);
+        glVertex2f(1.0f, 0.0f);
+        glTexCoord2f(texRight, texBottom);
+        glVertex2f(1.0f, 1.0f);
+        glTexCoord2f(texLeft, texBottom);
+        glVertex2f(0.0f, 1.0f);
+    glEnd();
+    
+    if (texture.channels == 4) {
+        glDisable(GL_BLEND);
+    }
+    
+    glDisable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glPopMatrix();
 }
 
