@@ -7,6 +7,10 @@
 #include "GL/gl.h"
 #endif
 
+#include "stdio.h"
+#include "dirent.h"
+#include "string.h"
+
 #include "../../include/base.h"
 
 const unsigned char font6x8_ascii[128][6] = {
@@ -191,4 +195,62 @@ void DrawText(const char* text, float x, float y, float scale, Color color) {
     }
     
     glPopMatrix();
+}
+
+#include "../../include/textures.h"
+
+Texture fontTextures[256];
+
+void LoadFont(char* pathToFolder) {
+    DIR *fontFolder;
+    struct dirent *entry;
+    printf("%s\n", "loading font");
+    
+    fontFolder = opendir(pathToFolder);
+    if (fontFolder == NULL) {
+        perror("directory cant be opened");
+        return;
+    }
+    
+    int currentSymbol = 0;
+    
+    while ((entry = readdir(fontFolder)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        
+        char fullPath[512];
+        
+        strcpy(fullPath, pathToFolder);
+        
+        if (fullPath[strlen(fullPath)-1] != '/') {
+            strcat(fullPath, "/");
+        }
+        strcat(fullPath, entry->d_name);
+        
+        printf("%s\n", fullPath);
+        fontTextures[currentSymbol] = LoadTexture(fullPath);
+        currentSymbol++;
+    }
+    
+    closedir(fontFolder);
+    return;
+}
+
+void DrawTextWithFont(unsigned char* text, int x, int y, float fontSize, Color color) {
+    unsigned int currentSymbol = 0;
+    unsigned int currentX = x;
+    while (text[currentSymbol] != '\0') {
+        DrawTexture(fontTextures[text[currentSymbol]], currentX, y, fontSize, color);
+        currentX = currentX + fontTextures[text[currentSymbol]].width*fontSize;
+        currentSymbol++;
+    }
+}
+
+void UnloadFont() {
+    int currentTexture = 0;
+    while (currentTexture < 256) {
+        UnloadTexture(fontTextures[currentTexture]);
+        currentTexture++;
+    }
 }

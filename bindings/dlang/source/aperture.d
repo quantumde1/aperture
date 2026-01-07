@@ -176,5 +176,8 @@ extern (C) @nogc {
         int IsKeyPressed(int key);
         int IsKeyDown(int key);
         void UpdateInput();
+        void DrawTextWithFont(char* text, int x, int y, float fontSize, Color color = Color(255, 255, 255, 255));
+        void LoadFont(char* pathToFolder);
+        void UnloadFont();
     }
 }
