@@ -215,6 +215,9 @@ void LoadFont(char* pathToFolder) {
     int currentSymbol = 0;
     
     while ((entry = readdir(fontFolder)) != NULL) {
+        if (currentSymbol == 256) {
+            break;
+        }
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
@@ -242,7 +245,11 @@ void DrawTextWithFont(unsigned char* text, int x, int y, float fontSize, Color c
     unsigned int currentX = x;
     while (text[currentSymbol] != '\0') {
         DrawTexture(fontTextures[text[currentSymbol]], currentX, y, fontSize, color);
-        currentX = currentX + fontTextures[text[currentSymbol]].width*fontSize;
+        if (fontSize < 1.0) {
+            currentX = currentX + fontTextures[text[currentSymbol]].width/2;
+        } else {
+            currentX = currentX + fontTextures[text[currentSymbol]].width*2;
+        }
         currentSymbol++;
     }
 }

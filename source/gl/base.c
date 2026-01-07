@@ -50,7 +50,7 @@ void glInit(int* pargc, char** argv, int width, int height, const char* title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-    
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
