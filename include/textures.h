@@ -24,5 +24,6 @@ typedef struct {
 
 void DrawTexture(Texture texture, float x, float y, float scale, Color color);
 Texture LoadTexture(const char* filename);
+Texture LoadTextureFromMemory(const unsigned char* data, size_t data_size);
 void UnloadTexture(Texture texture);
 void DrawTexturePro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);

@@ -172,7 +172,7 @@ void DrawText(const char* text, float x, float y, float scale, Color color) {
             continue;
         }
         
-        if (*c < 0 || *c >= 128) {
+        if (*c < 0) {
             continue;
         }
         
@@ -245,11 +245,7 @@ void DrawTextWithFont(unsigned char* text, int x, int y, float fontSize, Color c
     unsigned int currentX = x;
     while (text[currentSymbol] != '\0') {
         DrawTexture(fontTextures[text[currentSymbol]], currentX, y, fontSize, color);
-        if (fontSize < 1.0) {
-            currentX = currentX + fontTextures[text[currentSymbol]].width/2;
-        } else {
-            currentX = currentX + fontTextures[text[currentSymbol]].width*2;
-        }
+        currentX = currentX + fontTextures[text[currentSymbol]].width/2;
         currentSymbol++;
     }
 }

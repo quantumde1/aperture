@@ -45,7 +45,6 @@ void glInit(int* pargc, char** argv, int width, int height, const char* title) {
         return;
     }
     
-    // Указываем OpenGL 1.1
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);

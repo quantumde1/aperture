@@ -20,14 +20,26 @@ Texture LoadTexture(const char* filename) {
     stbi_set_flip_vertically_on_load(1);
     unsigned char* data = stbi_load(filename, &texture.width, &texture.height, &texture.channels, 0);
     
+    if (!data) {
+        fprintf(stderr, "Failed to load texture: %s\n", filename);
+        return texture;
+    }
+    
     GLenum format;
+    GLenum internalFormat;
+    
     if (texture.channels == 4) {
         format = GL_RGBA;
+        internalFormat = GL_RGBA;
     } else if (texture.channels == 3) {
         format = GL_RGB;
+        internalFormat = GL_RGB;
+    } else if (texture.channels == 1) {
+        format = GL_LUMINANCE;
+        internalFormat = GL_LUMINANCE;
     } else {
         stbi_image_free(data);
-        fprintf(stderr, "unsupported number of channels %d in texture\n", texture.channels);
+        fprintf(stderr, "Unsupported number of channels %d in texture: %s\n", texture.channels, filename);
         return texture;
     }
     
@@ -39,8 +51,16 @@ Texture LoadTexture(const char* filename) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, format, texture.width, texture.height, 
+    if (texture.channels == 1) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 
                  0, format, GL_UNSIGNED_BYTE, data);
+    
+    if (texture.channels == 1) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
     
     stbi_image_free(data);
 
@@ -67,6 +87,86 @@ Texture LoadTexture(const char* filename) {
         }
         glDisable(GL_TEXTURE_2D);
 
+    glEndList();
+    
+    return texture;
+}
+
+Texture LoadTextureFromMemory(const unsigned char* data, size_t data_size) {
+    Texture texture = {0};
+    stbi_set_flip_vertically_on_load(1);
+    
+    unsigned char* image_data = stbi_load_from_memory(data, data_size, 
+                                                        &texture.width, 
+                                                        &texture.height, 
+                                                        &texture.channels, 0);
+    
+    if (!image_data) {
+        fprintf(stderr, "Failed to load texture from memory\n");
+        return texture;
+    }
+    
+    GLenum format;
+    GLenum internalFormat;
+    
+    if (texture.channels == 4) {
+        format = GL_RGBA;
+        internalFormat = GL_RGBA;
+    } else if (texture.channels == 3) {
+        format = GL_RGB;
+        internalFormat = GL_RGB;
+    } else if (texture.channels == 1) {
+        format = GL_LUMINANCE;
+        internalFormat = GL_LUMINANCE;
+    } else {
+        stbi_image_free(image_data);
+        fprintf(stderr, "Unsupported number of channels %d in texture from memory\n", texture.channels);
+        return texture;
+    }
+    
+    glGenTextures(1, &texture.id);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (texture.channels == 1) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 
+                 0, format, GL_UNSIGNED_BYTE, image_data);
+    
+    if (texture.channels == 1) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    }
+    
+    stbi_image_free(image_data);
+    
+    texture.list_id = glGenLists(1);
+    
+    glNewList(texture.list_id, GL_COMPILE);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture.id);
+        
+        if (texture.channels == 4) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+        
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, 0.0f);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, 1.0f);
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 1.0f);
+        glEnd();
+        
+        if (texture.channels == 4) {
+            glDisable(GL_BLEND);
+        }
+        glDisable(GL_TEXTURE_2D);
     glEndList();
     
     return texture;
