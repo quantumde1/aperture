@@ -10,7 +10,6 @@
 
 #include "../include/base.h"
 
-#ifndef _WIN32
 typedef struct {
     GLuint id;
     GLuint list_id;
@@ -18,9 +17,6 @@ typedef struct {
     int height;
     int channels;
 } Texture;
-#else
-//TODO add Windows DirectX at least 9.0c support.
-#endif
 
 void DrawTexture(Texture texture, float x, float y, float scale, Color color);
 Texture LoadTexture(const char* filename);
